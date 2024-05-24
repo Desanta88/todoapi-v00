@@ -10,11 +10,13 @@ namespace todoapi_v00.Controllers
     {
         private readonly TodoContext _context;
         private readonly CategoryContext _categorycontext;
+        private readonly ListContext _listcontext;
 
-        public TodosController(TodoContext context,CategoryContext categoryC)
+        public TodosController(TodoContext context,CategoryContext categoryC,ListContext listC)
         {
             _context = context;
             _categorycontext = categoryC;
+            _listcontext = listC;
         }
 
         // GET: api/todo
@@ -38,6 +40,7 @@ namespace todoapi_v00.Controllers
             return todoItem;
         }
 
+        //GET:api/todos/1/Category
         [HttpGet("{Id}/Category")]
 
         public async Task<ActionResult<Category>> GetCategory(long Id)
@@ -55,6 +58,26 @@ namespace todoapi_v00.Controllers
                 return NotFound();
 
             return category;
+        }
+
+        //GET:api/todos/1/List
+        [HttpGet("{Id}/List")]
+
+        public async Task<ActionResult<List>> GetList(long Id)
+        {
+            var todoItem = await _context.TodoItems.FindAsync(Id);
+            List? list;
+            if (todoItem is not null)
+            {
+                list = await _listcontext.Lists.FindAsync(todoItem.ListId);
+            }
+            else
+                return NotFound();
+
+            if (list == null)
+                return NotFound();
+
+            return list;
         }
         // POST: api/Todo
         [HttpPost]
